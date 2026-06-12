@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Todo App</title>
+    <style>
+        body { font-family: Arial; margin: 40px; }
+        input { padding: 8px; }
+        button { padding: 6px 10px; margin-left: 5px; }
+        li { margin: 10px 0; }
+    </style>
+</head>
+<body>
+
+<h2>📝 Todo List</h2>
+
+<input type="text" id="taskInput" placeholder="Enter task">
+<button onclick="addTask()">Add</button>
+
+<ul id="taskList"></ul>
+
+<script>
+const API = "/tasks";
+
+// Load tasks
+function loadTasks() {
+    fetch(API)
+    .then(res => res.json())
+    .then(data => {
+        const list = document.getElementById("taskList");
+        list.innerHTML = "";
+
+        data.forEach(task => {
+            list.innerHTML += `
+                <li>
+                    ${task.name}
+                    <button onclick="deleteTask(${task.id})">❌</button>
+                </li>
+            `;
+        });
+    });
+}
+
+// Add task
+function addTask() {
+    const input = document.getElementById("taskInput");
+
+    fetch(API, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name: input.value })
+    })
+    .then(() => {
+        input.value = "";
+        loadTasks();
+    });
+}
+
+// Delete task
+function deleteTask(id) {
+    fetch(`${API}/${id}`, {
+        method: "DELETE"
+    })
+    .then(() => loadTasks());
+}
+
+// Initial load
+loadTasks();
+</script>
+
+</body>
+</html>
